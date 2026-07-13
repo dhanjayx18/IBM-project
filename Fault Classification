@@ -1,0 +1,26 @@
+from ibm_watson_machine_learning import APIClient
+
+def classify_circuit_fault(signal_data):
+    """
+    Connects to the deployed AutoAI model mentioned in your PPT.
+    Input: signal_data (List of [SNR, THD, Voltage_Peak, Frequency])
+    """
+    wml_credentials = {
+        "url": "https://us-south.ml.cloud.ibm.com",
+        "apikey": "YOUR_IBM_CLOUD_API_KEY"
+    }
+    client = APIClient(wml_credentials)
+    client.set.default_project("YOUR_WATSONX_PROJECT_ID")
+    
+    deployment_id = "YOUR_DEPLOYMENT_ID_FROM_WATSON_STUDIO"
+    
+    # Payload format for the deployed ML model
+    payload = {
+        "input_data": [{
+            "fields": ["SNR", "THD", "Voltage_Peak", "Frequency"],
+            "values": [signal_data]
+        }]
+    }
+    
+    result = client.deployments.score(deployment_id, payload)
+    return result['predictions'][0]['values'][0][0] # Returns 'Ground Loop', 'Clipping', etc.
